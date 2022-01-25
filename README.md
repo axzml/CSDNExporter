@@ -8,7 +8,7 @@ CSDN 博客导出工具, 用于将 CSDN 博客导出为 Markdown / PDF 格式. �
 
 另外要说明的是:
 
-0. 安装必要的 Python 库, 如 `requests`, `BeautifulSoup`;
+0. 安装必要的 Python 库, 如 `httpx`, `requests`, `BeautifulSoup`;
 1. 为了解析图片链接, 需要安装 [aria2](https://aria2.github.io/), 并保证能在命令行启动;
 2. 为了转换为 PDF, 需要安装 [Pandoc](https://pandoc.org/)
 
