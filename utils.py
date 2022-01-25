@@ -81,7 +81,9 @@ class Parser(object):
                         self.equ_inline = True if 'katex--inline' in soup.attrs['class'] else False
                         math_start_sign = '$' if self.equ_inline else '\n\n$$'
                         math_end_sign = '$' if self.equ_inline else '$$\n\n'
-                        equation = soup.find_all('annotation', {'encoding': 'application/x-tex'})[0].string
+                        # equation = soup.find_all('annotation', {'encoding': 'application/x-tex'})[0].string
+                        equation = soup.find_all('span', {'class': 'katex-mathml'})[0].string
+                        equation = equation.strip().split('\n')[-1].strip()
                         equation = math_start_sign + str(equation) + math_end_sign
                         self.outputs.append(equation)
                         self.equ_inline = False
