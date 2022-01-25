@@ -9,6 +9,7 @@ import shutil
 from os.path import join, exists
 import urllib.request
 import requests
+import httpx
 import argparse
 import glob
 from bs4 import BeautifulSoup, NavigableString
@@ -41,7 +42,7 @@ parser.add_argument('--combine_together', action='store_true',
 args = parser.parse_args()
 
 def html2md(url, md_file, with_title=False):
-    response = requests.get(url)
+    response = httpx.get(url)
     soup = BeautifulSoup(response.content, 'html.parser', from_encoding="utf-8")
     html = ""
     for child in soup.find_all('svg'):
@@ -102,7 +103,7 @@ def download_csdn_category_url(category_url, md_dir, start_page=1, page_num=100,
         suffix = '.html' if page == 1 else '_{}.html'.format(page)
         category_url_new = category_url.rstrip('.html') + suffix
         print('Getting Response From {}'.format(category_url_new))
-        response = requests.get(category_url_new)
+        response = httpx.get(category_url_new)
         soup = BeautifulSoup(response.content, 'html.parser', from_encoding="utf-8")
         article_list = soup.find_all('ul', {'class': 'column_article_list'})[0]
         p = article_list.find_all('p')
@@ -128,7 +129,7 @@ def download_csdn_category_url(category_url, md_dir, start_page=1, page_num=100,
 def download_csdn_single_page(details_url, md_dir, with_title=True, pdf_dir='pdf', to_pdf=False):
     if not exists(md_dir):
         os.makedirs(md_dir)
-    response = requests.get(details_url)
+    response = httpx.get(details_url)
     soup = BeautifulSoup(response.content, 'html.parser', from_encoding="utf-8")
     title = soup.find_all('h1', {'class': 'title-article'})[0].string  ## 使用 html 的 title 作为 md 文件名
     title = '_'.join(title.replace('*', '').strip().split())
