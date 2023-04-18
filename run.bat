@@ -5,7 +5,7 @@ set article_url="https://blog.csdn.net/weixin_43792401/article/details/130065744
 set start_page=1
 set page_num=100
 set markdown_dir=markdown
-set pdf_dir=pdf
+set pdf_dir=pdf\
 
 if %download_category% == "true" (
     echo "download a category"
@@ -16,17 +16,19 @@ if %download_category% == "true" (
         --markdown_dir %markdown_dir% ^
         --pdf_dir %pdf_dir% ^
         --combine_together ^
-        --to_pdf 
+        --to_pdf ^
+        --is_win 1
         @REM --with_title ^
-        @REM --rm_cache ^
+        @REM --rm_cache
 ) else (
     echo "download an article"
     python -u main.py ^
         --article_url %article_url% ^
         --markdown_dir %markdown_dir% ^
-        --pdf_dir %pdf_dir% ^
-        --to_pdf 
-        @REM --with_title ^
-        @REM --rm_cache ^
-        @REM --combine_together ^
+        --pdf_dir %pdf_dir% 
+        --to_pdf ^
+        --with_title ^
+        --rm_cache ^
+        --combine_together
+        --is_win 1
 )
