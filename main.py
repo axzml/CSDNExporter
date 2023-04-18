@@ -14,6 +14,8 @@ import argparse
 import glob
 from bs4 import BeautifulSoup, NavigableString
 from utils import Parser
+import re
+
 
 parser = argparse.ArgumentParser('CSDN Blog Exporter: To Markdown or To PDF')
 group = parser.add_mutually_exclusive_group()
@@ -114,6 +116,7 @@ def download_csdn_category_url(category_url, md_dir, start_page=1, page_num=100,
             # if child.name == 'div': # and child.attrs['class'] == 'pagination-box': print(child)
             if child.name == 'li':
                 url, title = get_category_article_info(child)
+                title = re.compile(u"([^\u4e00-\u9fa5\u0030-\u0039\u0041-\u005a\u0061-\u007a])").sub('', title)
                 article_url.append(url)
                 article_title.append(title)
 
