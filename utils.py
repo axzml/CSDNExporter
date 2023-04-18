@@ -61,6 +61,7 @@ class Parser(object):
                     if not 'class' in soup.attrs:
                         language = 'bash'  # default language
                     else:
+                        language = ''
                         for name in ['cpp', 'bash', 'python', 'java']:
                             if name in ' '.join(list(soup.attrs['class'])): # <code class="prism language-cpp">
                                 language = name
