@@ -38,6 +38,9 @@ parser.add_argument('--with_title', action='store_true')
 parser.add_argument('--to_pdf', action='store_true')
 parser.add_argument('--rm_cache', action='store_true',
                    help='remove cached file')
+parser.add_argument('--is_win', 
+                    choices=[1, 0], default=0, type=int,
+                   help='platform: windows-1, Linux-0')
 parser.add_argument('--combine_together', action='store_true',
                    help='Combine all markdown file in markdown_dir to a single file.'
                    ' And if to_pdf, the single file will be converted pdf format')
@@ -59,26 +62,41 @@ def html2md(url, md_file, with_title=False):
     with open(md_file, 'w', encoding="utf-8") as f:
         f.write('{}\n'.format(''.join(parser.outputs)))
 
-def generate_pdf(input_md_file, pdf_dir):
+def generate_pdf(input_md_file, pdf_dir, is_win=False):
     if not exists(pdf_dir):
         os.makedirs(pdf_dir)
 
     md_name = os.path.basename(input_md_file)
     pdf_name = md_name.replace('.md', '.pdf')
     pdf_file = join(pdf_dir, pdf_name)
-    cmd = ["pandoc",
-        "--toc",
-        "--pdf-engine=xelatex",
-        "-V mainfont='Source Code Pro'",
-        "-V monofont='Source Code Pro'",
-        "-V documentclass='ctexart'",
-        "-V geometry:'top=2cm, bottom=1cm, left=1.5cm, right=1.5cm'",
-        "-V pagestyle=plain",
-        "-V fontsize=11pt",
-        "-V colorlinks=blue",
-        "-s {}".format(input_md_file),
-        "-o {}".format(pdf_file),
-    ]
+    if is_win:
+        cmd = ['pandoc',
+            '--toc',
+            '--pdf-engine=xelatex',
+            '-V mainfont="Source Code Pro"',
+            '-V monofont="Source Code Pro"',
+            '-V documentclass="ctexbook"',
+            '-V geometry:"top=2cm, bottom=1cm, left=1.5cm, right=1.5cm"',
+            '-V pagestyle=plain',
+            '-V fontsize=11pt',
+            '-V colorlinks=blue',
+            '-s {}'.format(input_md_file),
+            '-o {}'.format(pdf_file),
+        ]
+    else:
+        cmd = ["pandoc",
+            "--toc",
+            "--pdf-engine=xelatex",
+            "-V mainfont='Source Code Pro'",
+            "-V monofont='Source Code Pro'",
+            "-V documentclass='ctexart'",
+            "-V geometry:'top=2cm, bottom=1cm, left=1.5cm, right=1.5cm'",
+            "-V pagestyle=plain",
+            "-V fontsize=11pt",
+            "-V colorlinks=blue",
+            "-s {}".format(input_md_file),
+            "-o {}".format(pdf_file),
+        ]
     cmd = ' '.join(cmd)
     print('Generate PDF File: {}'.format(pdf_file))
     os.system(cmd)
@@ -92,7 +110,7 @@ def get_category_article_info(soup):
             break
     return url, title
 
-def download_csdn_category_url(category_url, md_dir, start_page=1, page_num=100, pdf_dir='pdf', to_pdf=False):
+def download_csdn_category_url(category_url, md_dir, start_page=1, page_num=100, pdf_dir='pdf', to_pdf=False, is_win=False):
     """
     如果想下载某个 category 下的所有页面, 那么 page_num 设置大一些
     """
@@ -126,10 +144,10 @@ def download_csdn_category_url(category_url, md_dir, start_page=1, page_num=100,
         if not exists(md_file):
             html2md(url, md_file)
             if to_pdf:
-                generate_pdf(md_file, pdf_dir)
+                generate_pdf(md_file, pdf_dir, is_win)
 
 
-def download_csdn_single_page(details_url, md_dir, with_title=True, pdf_dir='pdf', to_pdf=False):
+def download_csdn_single_page(details_url, md_dir, with_title=True, pdf_dir='pdf', to_pdf=False, is_win=False):
     if not exists(md_dir):
         os.makedirs(md_dir)
     response = httpx.get(details_url)
@@ -140,7 +158,7 @@ def download_csdn_single_page(details_url, md_dir, with_title=True, pdf_dir='pdf
     print('Export Markdown File To {}'.format(md_file))
     html2md(details_url, md_file, with_title=with_title)
     if to_pdf:
-        generate_pdf(md_file, pdf_dir)
+        generate_pdf(md_file, pdf_dir, is_win)
 
 
 if __name__ == '__main__':
@@ -169,11 +187,15 @@ if __name__ == '__main__':
                                  with_title=args.with_title,
                                  pdf_dir=args.pdf_dir,
                                  to_pdf=args.to_pdf)
-
+    is_win = args.is_win == 1
     if args.combine_together:
         source_files = join(args.markdown_dir, '*.md')
         md_file = 'my_together_file.md'  ## 当我清醒过来之后才发现取了一个这样的名字
-        os.system('cat {} > {}'.format(source_files, md_file))
+        if is_win:
+            cmd_line = f"type {source_files} > {md_file}"
+        else:
+            cmd_line = 'cat {} > {}'.format(source_files, md_file)
+        os.system(cmd_line)
         if args.to_pdf:
-            generate_pdf(md_file, args.pdf_dir)
+            generate_pdf(md_file, args.pdf_dir, is_win)
 
