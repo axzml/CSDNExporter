@@ -54,7 +54,7 @@ def html2md(url, md_file, with_title=False):
         html += str(c)
 
     parser = Parser(html)
-    with open(md_file, 'w') as f:
+    with open(md_file, 'w', encoding="utf-8") as f:
         f.write('{}\n'.format(''.join(parser.outputs)))
 
 def generate_pdf(input_md_file, pdf_dir):
