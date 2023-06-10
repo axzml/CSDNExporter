@@ -46,7 +46,7 @@ parser.add_argument('--combine_together', action='store_true',
                    ' And if to_pdf, the single file will be converted pdf format')
 args = parser.parse_args()
 
-def html2md(url, md_file, with_title=False):
+def html2md(url, md_file, with_title=False, is_win=False):
     response = httpx.get(url)
     soup = BeautifulSoup(response.content, 'html.parser', from_encoding="utf-8")
     html = ""
@@ -57,8 +57,7 @@ def html2md(url, md_file, with_title=False):
             html += str(c)
     for c in soup.find_all('div', {'id': 'content_views'}):
         html += str(c)
-
-    parser = Parser(html)
+    parser = Parser(html, is_win)
     with open(md_file, 'w', encoding="utf-8") as f:
         f.write('{}\n'.format(''.join(parser.outputs)))
 
@@ -156,7 +155,7 @@ def download_csdn_single_page(details_url, md_dir, with_title=True, pdf_dir='pdf
     title = '_'.join(title.replace('*', '').strip().split())
     md_file = join(md_dir, title + '.md')
     print('Export Markdown File To {}'.format(md_file))
-    html2md(details_url, md_file, with_title=with_title)
+    html2md(details_url, md_file, with_title=with_title, is_win=is_win)
     if to_pdf:
         generate_pdf(md_file, pdf_dir, is_win)
 

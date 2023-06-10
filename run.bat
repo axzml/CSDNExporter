@@ -1,4 +1,13 @@
 @echo off
+@title CSDNExporter
+@CHCP 65001
+@cls
+@color 9F
+@echo ================================================================================
+@echo ^|^|=================== CSDNExporter（Windows版本） ==========================^|^|
+@echo ^|^|============= Github链接：https://github.com/axzml/CSDNExporter ==============^|^|
+@echo ================================================================================
+
 set download_category="true"
 set category_url="https://blog.csdn.net/weixin_43792401/category_12292383.html"
 set article_url="https://blog.csdn.net/weixin_43792401/article/details/130065744"
@@ -32,3 +41,4 @@ if %download_category% == "true" (
         --combine_together
         --is_win 1
 )
+pause

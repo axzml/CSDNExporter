@@ -3,3 +3,6 @@ pdf/
 figures/
 __pycache__/
 test/
+git-app.bat
+.idea/
+my_together_file.md
