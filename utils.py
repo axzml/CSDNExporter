@@ -14,13 +14,14 @@ special_characters = {
 }
 
 class Parser(object):
-    def __init__(self, html):
+    def __init__(self, html, is_win=False):
         self.html = html
         self.soup = BeautifulSoup(html, 'html.parser')
         self.outputs = []
         self.fig_dir = './figures'
         self.pre = False
         self.equ_inline = False
+        self.is_win = is_win
 
         if not exists(self.fig_dir):
             os.makedirs(self.fig_dir)
@@ -107,7 +108,10 @@ class Parser(object):
                     img_file = result_tuple[1].split('/')[-1].rstrip('?')
                 # img_file = re.findall(pattern, src)[0][0].split('/')[-1].rstrip('?') ## e.g. https://img-blog.csdnimg.cn/20200228210146931.png?
                 img_file = join(self.fig_dir, img_file)
-                download_img_cmd = 'aria2c --file-allocation=none -c -x 10 -s 10 -o {} {}'.format(img_file, src)
+                if self.is_win:
+                    download_img_cmd = 'aria2c.exe --file-allocation=none -c -x 10 -s 10 -o {} {}'.format(img_file, src)
+                else:
+                    download_img_cmd = 'aria2c --file-allocation=none -c -x 10 -s 10 -o {} {}'.format(img_file, src)
                 if not exists(img_file):
                     os.system(download_img_cmd)
                 # soup.attrs['src'] = img_file
