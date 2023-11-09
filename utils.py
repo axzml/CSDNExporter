@@ -3,10 +3,12 @@
 # Author: axzml
 # Date: 2020-03-07
 #############################
+from operator import index
 from bs4 import BeautifulSoup, Tag, NavigableString, Comment
 import os
 from os.path import join, exists
 import re
+import pathlib
 
 special_characters = {
     "&lt;": "<", "&gt;": ">", "&nbsp": " ",
@@ -18,7 +20,7 @@ class Parser(object):
         self.html = html
         self.soup = BeautifulSoup(html, 'html.parser')
         self.outputs = []
-        self.fig_dir = './figures'
+        self.fig_dir = './figures/'
         self.pre = False
         self.equ_inline = False
         self.is_win = is_win
@@ -99,13 +101,22 @@ class Parser(object):
                 # soup.contents.insert(0, NavigableString('> '))
             elif tag == 'img':
                 src = soup.attrs['src']
-                # pattern = r'.*\.png'
-                pattern = r'(.*\..*\?)|(.*\.(png|jpeg|jpg))'
-                result_tuple = re.findall(pattern, src)[0]
+                pattern = r'(.*\..*\?)|(.*\.(png|jpeg|jpg|gif|bmp))'
+                find_result = re.findall(pattern, src);
+                if len(find_result) == 0:
+                    result_tuple = [src + '.jpg'] * 2
+                else:
+                    result_tuple = re.findall(pattern, src)[0]
+
                 if result_tuple[0]:
                     img_file = result_tuple[0].split('/')[-1].rstrip('?')
                 else:
                     img_file = result_tuple[1].split('/')[-1].rstrip('?')
+                file_ext = pathlib.Path(img_file)
+                fileExtList = ['.png','.jpg','.jpeg','.gif','.bmp']
+                if not file_ext.suffix.lower() in fileExtList:
+                    return
+               
                 # img_file = re.findall(pattern, src)[0][0].split('/')[-1].rstrip('?') ## e.g. https://img-blog.csdnimg.cn/20200228210146931.png?
                 img_file = join(self.fig_dir, img_file)
                 if self.is_win:
@@ -116,7 +127,7 @@ class Parser(object):
                     os.system(download_img_cmd)
                 # soup.attrs['src'] = img_file
                 # self.outputs.append('\n' + str(soup.parent) + '\n')
-                code = '![{}]({})'.format(img_file, img_file)
+                code = '![{}]({})'.format(img_file, src)
                 self.outputs.append('\n' + code + '\n')
                 return
         if not hasattr(soup, 'children'): return
