@@ -21,6 +21,9 @@ CSDN 博客导出工具, 用于将 CSDN 博客导出为 Markdown / PDF 格式. �
 
 99. 下载过快容易被CSDN屏蔽！
 100. TODO: 标题没有处理完善！
+101. 如MD文件无法正常转换为PDF，可使用VSCODE + Markdown Preview Enhanced插件
+(https://marketplace.visualstudio.com/items?itemName=shd101wyy.markdown-preview-enhanced)实现。
+使用VSCODE打开MD文件-右键菜单-打开侧边预览-在预览页面打开右键菜单-Open in browser-打印为PDF即可。
 
 
 此外, 正如博客标题 [导出 CSDN 博客至 Markdown 或 PDF 格式 (近乎完美)](https://blog.csdn.net/Eric_1993/article/details/104772437) 中说的, "近乎完美",
@@ -35,3 +38,6 @@ CSDN 博客导出工具, 用于将 CSDN 博客导出为 Markdown / PDF 格式. �
 5.修复文章中存在匹配图片格式但实际不是图片url导致下载失败的问题。
 6.修复generate_pdf方法的is_win参数未生效的问题。
 7.修复MD文件中图片路径由于img_file = join(self.fig_dir, img_file)导致未正常转义引发PDF转换失败的问题。
+
+20231110
+1.pandoc增加--verbose参数，便于后续调试。

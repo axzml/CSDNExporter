@@ -74,6 +74,7 @@ def generate_pdf(input_md_file, pdf_dir, is_win=False):
 
     if is_win:
         cmd = ['pandoc',
+            "--verbose "
             '--toc',
             '--pdf-engine=xelatex',
             '-V mainfont="Source Code Pro"',
@@ -88,6 +89,7 @@ def generate_pdf(input_md_file, pdf_dir, is_win=False):
         ]
     else:
         cmd = ["pandoc",
+            "--verbose "
             "--toc",
             "--pdf-engine=xelatex",
             "-V mainfont='Source Code Pro'",
