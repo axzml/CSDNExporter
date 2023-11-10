@@ -68,8 +68,13 @@ def generate_pdf(input_md_file, pdf_dir, is_win=False):
     md_name = os.path.basename(input_md_file)
     pdf_name = md_name.replace('.md', '.pdf')
     pdf_file = join(pdf_dir, pdf_name)
+
+    if exists(pdf_file):
+        return
+
     if is_win:
         cmd = ['pandoc',
+            "--verbose "
             '--toc',
             '--pdf-engine=xelatex',
             '-V mainfont="Source Code Pro"',
@@ -84,6 +89,7 @@ def generate_pdf(input_md_file, pdf_dir, is_win=False):
         ]
     else:
         cmd = ["pandoc",
+            "--verbose "
             "--toc",
             "--pdf-engine=xelatex",
             "-V mainfont='Source Code Pro'",
@@ -93,8 +99,8 @@ def generate_pdf(input_md_file, pdf_dir, is_win=False):
             "-V pagestyle=plain",
             "-V fontsize=11pt",
             "-V colorlinks=blue",
-            "-s {}".format(input_md_file),
-            "-o {}".format(pdf_file),
+            "-s {''}".format(input_md_file),
+            "-o {''}".format(pdf_file),
         ]
     cmd = ' '.join(cmd)
     print('Generate PDF File: {}'.format(pdf_file))
@@ -142,8 +148,9 @@ def download_csdn_category_url(category_url, md_dir, start_page=1, page_num=100,
         print('BlogNum: {}, Exporting Markdown File To {}'.format(idx, md_file))
         if not exists(md_file):
             html2md(url, md_file)
-            if to_pdf:
-                generate_pdf(md_file, pdf_dir, is_win)
+            
+        if to_pdf:
+            generate_pdf(md_file, pdf_dir, is_win)
 
 
 def download_csdn_single_page(details_url, md_dir, with_title=True, pdf_dir='pdf', to_pdf=False, is_win=False):
@@ -179,13 +186,15 @@ if __name__ == '__main__':
                                    start_page=args.start_page,
                                    page_num=args.page_num,
                                    pdf_dir=args.pdf_dir,
-                                   to_pdf=args.to_pdf)
+                                   to_pdf=args.to_pdf,
+                                   is_win=args.is_win == 1)
     else:
         download_csdn_single_page(args.article_url,
                                  args.markdown_dir,
                                  with_title=args.with_title,
                                  pdf_dir=args.pdf_dir,
-                                 to_pdf=args.to_pdf)
+                                 to_pdf=args.to_pdf,
+                                 is_win=args.is_win == 1)
     is_win = args.is_win == 1
     if args.combine_together:
         source_files = join(args.markdown_dir, '*.md')

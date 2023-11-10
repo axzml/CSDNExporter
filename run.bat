@@ -9,12 +9,12 @@
 @echo ================================================================================
 
 set download_category="true"
-set category_url="https://blog.csdn.net/weixin_43792401/category_12292383.html"
-set article_url="https://blog.csdn.net/weixin_43792401/article/details/130065744"
+set category_url="https://blog.csdn.net/hiwangwenbing/category_10280587.html"
+set article_url="https://blog.csdn.net/HiWangWenBing/article/details/112058664"
 set start_page=1
 set page_num=100
 set markdown_dir=markdown
-set pdf_dir=pdf\
+set pdf_dir=pdf
 
 if %download_category% == "true" (
     echo "download a category"
@@ -24,7 +24,6 @@ if %download_category% == "true" (
         --page_num %page_num% ^
         --markdown_dir %markdown_dir% ^
         --pdf_dir %pdf_dir% ^
-        --combine_together ^
         --to_pdf ^
         --is_win 1
         @REM --with_title ^
@@ -34,11 +33,10 @@ if %download_category% == "true" (
     python -u main.py ^
         --article_url %article_url% ^
         --markdown_dir %markdown_dir% ^
-        --pdf_dir %pdf_dir% 
+        --pdf_dir %pdf_dir% ^
         --to_pdf ^
         --with_title ^
         --rm_cache ^
-        --combine_together
         --is_win 1
 )
 pause
