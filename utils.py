@@ -2,6 +2,8 @@
 # CopyRight ~~~~~~
 # Author: axzml
 # Date: 2020-03-07
+# Optimization：mofi
+# Date: 2024-04-23
 #############################
 from bs4 import BeautifulSoup, Tag, NavigableString, Comment
 import os
@@ -18,7 +20,7 @@ class Parser(object):
         self.html = html
         self.soup = BeautifulSoup(html, 'html.parser')
         self.outputs = []
-        self.fig_dir = './figures'
+        self.fig_dir = 'D:/24Python/12_数据抓取/02自制/output/markdown/figure'
         self.pre = False
         self.equ_inline = False
         self.is_win = is_win
@@ -107,11 +109,11 @@ class Parser(object):
                 else:
                     img_file = result_tuple[1].split('/')[-1].rstrip('?')
                 # img_file = re.findall(pattern, src)[0][0].split('/')[-1].rstrip('?') ## e.g. https://img-blog.csdnimg.cn/20200228210146931.png?
-                img_file = join(self.fig_dir, img_file)
+                #img_file = join(self.fig_dir, img_file)
                 if self.is_win:
-                    download_img_cmd = 'aria2c.exe --file-allocation=none -c -x 10 -s 10 -o {} {}'.format(img_file, src)
+                    download_img_cmd = 'aria2c.exe --file-allocation=none -c -x 10 -s 10 ' + '-d ' + self.fig_dir +' -o ' + img_file + ' ' + src
                 else:
-                    download_img_cmd = 'aria2c --file-allocation=none -c -x 10 -s 10 -o {} {}'.format(img_file, src)
+                    download_img_cmd = 'aria2c.exe --file-allocation=none -c -x 10 -s 10 ' + '-d ' + self.fig_dir +' -o ' + img_file + ' ' + src
                 if not exists(img_file):
                     os.system(download_img_cmd)
                 # soup.attrs['src'] = img_file
