@@ -1,3 +1,3 @@
 requests
-BeautifulSoup
+BeautifulSoup4
 httpx
