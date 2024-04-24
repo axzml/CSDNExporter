@@ -35,4 +35,4 @@ CSDN 博客导出工具, 用于将 CSDN 博客导出为 Markdown / PDF 格式. �
 
 因个人原因，仓库疏于维护，非常感谢社区成员的关注与支持，尤其感谢如下成员的付出：
 
-@yaunsine, @Tim-Saijun, @66my
+[@yaunsine](https://github.com/yaunsine), [@Tim-Saijun](https://github.com/Tim-Saijun), [@66my](https://github.com/66my)
