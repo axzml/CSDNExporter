@@ -118,6 +118,24 @@ class Parser(object):
                 code = '![{}]({})'.format(img_file, img_file)
                 self.outputs.append('\n' + code + '\n')
                 return
+            # parse table
+            elif tag == 'table':
+                soup.contents.insert(0, NavigableString('\n'))
+                soup.contents.append(NavigableString('\n'))
+            elif tag == 'thead':
+                self.head_num = 0
+            elif tag == 'tbody':
+                if self.head_num > 0:
+                    soup.contents.insert(0, NavigableString('|' + ':---:|'*self.head_num + '\n'))
+            elif tag == 'tr':
+                soup.contents.insert(0, NavigableString('|'))
+                soup.contents.append(NavigableString('\n'))
+            elif tag == 'th':
+                self.head_num += 1
+                soup.contents.append(NavigableString('|'))
+            elif tag == 'td':
+                soup.contents.append(NavigableString('|'))
+
         if not hasattr(soup, 'children'): return
         for child in soup.children:
             self.recursive(child)
@@ -125,6 +143,7 @@ class Parser(object):
 
 if __name__ == '__main__':
     # html = '<body><!-- cde --><h1>This is 1 &lt;= 2<!-- abc --> <b>title</b></h1><p><a href="www.hello.com">hello</a></p><b>test</b>'
-    html = '<body><!-- cde --><h1>hello</h1><h2>world</h2></body>'
+    # html = '<body><!-- cde --><h1>hello</h1><h2>world</h2></body>'
+    html = '<body><!-- cde --><h1>hello</h1><h2>world</h2><table><thead><tr><th>H1</th><th>H2</th></tr></thead><tbody><tr><td>A</td><td>B</td></tr><tr><td>C</td><td>D</td></tr></tbody></table></body>'
     parser = Parser(html)
     print(''.join(parser.outputs))
