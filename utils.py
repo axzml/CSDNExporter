@@ -14,14 +14,13 @@ special_characters = {
 }
 
 class Parser(object):
-    def __init__(self, html, is_win=False):
+    def __init__(self, html):
         self.html = html
         self.soup = BeautifulSoup(html, 'html.parser')
         self.outputs = []
         self.fig_dir = './figures'
         self.pre = False
         self.equ_inline = False
-        self.is_win = is_win
 
         if not exists(self.fig_dir):
             os.makedirs(self.fig_dir)

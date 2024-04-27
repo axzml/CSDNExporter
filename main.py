@@ -57,7 +57,7 @@ def html2md(url, md_file, with_title=False, is_win=False):
             html += str(c)
     for c in soup.find_all('div', {'id': 'content_views'}):
         html += str(c)
-    parser = Parser(html, is_win)
+    parser = Parser(html)
     with open(md_file, 'w', encoding="utf-8") as f:
         f.write('{}\n'.format(''.join(parser.outputs)))
 
@@ -68,34 +68,20 @@ def generate_pdf(input_md_file, pdf_dir, is_win=False):
     md_name = os.path.basename(input_md_file)
     pdf_name = md_name.replace('.md', '.pdf')
     pdf_file = join(pdf_dir, pdf_name)
-    if is_win:
-        cmd = ['pandoc',
-            '--toc',
-            '--pdf-engine=xelatex',
-            '-V mainfont="Source Code Pro"',
-            '-V monofont="Source Code Pro"',
-            '-V documentclass="ctexbook"',
-            '-V geometry:"top=2cm, bottom=1cm, left=1.5cm, right=1.5cm"',
-            '-V pagestyle=plain',
-            '-V fontsize=11pt',
-            '-V colorlinks=blue',
-            '-s {}'.format(input_md_file),
-            '-o {}'.format(pdf_file),
-        ]
-    else:
-        cmd = ["pandoc",
-            "--toc",
-            "--pdf-engine=xelatex",
-            "-V mainfont='Source Code Pro'",
-            "-V monofont='Source Code Pro'",
-            "-V documentclass='ctexart'",
-            "-V geometry:'top=2cm, bottom=1cm, left=1.5cm, right=1.5cm'",
-            "-V pagestyle=plain",
-            "-V fontsize=11pt",
-            "-V colorlinks=blue",
-            "-s {}".format(input_md_file),
-            "-o {}".format(pdf_file),
-        ]
+    documentclass = "ctexbook" if is_win else "ctexart"
+    cmd = ["pandoc",
+        "--toc",
+        "--pdf-engine=xelatex",
+        "-V mainfont='Source Code Pro'",
+        "-V monofont='Source Code Pro'",
+        "-V documentclass='{}'".format(documentclass),
+        "-V geometry:'top=2cm, bottom=2cm, left=1.6cm, right=1.6cm'",
+        "-V pagestyle=plain",
+        "-V fontsize=11pt",
+        "-V colorlinks=blue",
+        "-s {}".format(input_md_file),
+        "-o {}".format(pdf_file),
+    ]
     cmd = ' '.join(cmd)
     print('Generate PDF File: {}'.format(pdf_file))
     os.system(cmd)
