@@ -7,6 +7,7 @@ from bs4 import BeautifulSoup, Tag, NavigableString, Comment
 import os
 from os.path import join, exists
 import re
+import httpx
 
 special_characters = {
     "&lt;": "<", "&gt;": ">", "&nbsp": " ",
@@ -107,11 +108,20 @@ class Parser(object):
                     img_filename = result_tuple[1].split('/')[-1].rstrip('?')
                 # img_file = re.findall(pattern, src)[0][0].split('/')[-1].rstrip('?') ## e.g. https://img-blog.csdnimg.cn/20200228210146931.png?
                 
-                download_img_cmd = 'aria2c --file-allocation=none -c -x 10 -s 10 -d {} -o {} {}'.format(self.fig_dir, img_filename, src)
-
                 img_file = join(self.fig_dir, img_filename)
                 if not exists(img_file):
-                    os.system(download_img_cmd)
+                    try:
+                        headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36'}
+                        with httpx.Client(verify=False) as client:
+                            resp = client.get(src, headers=headers, timeout=20.0)
+                            if resp.status_code == 200:
+                                with open(img_file, 'wb') as f:
+                                    f.write(resp.content)
+                            else:
+                                print(f"Download failed: {src}, status: {resp.status_code}")
+                    except Exception as e:
+                        print(f"Error downloading {src}: {e}")
+
                 # soup.attrs['src'] = img_file
                 # self.outputs.append('\n' + str(soup.parent) + '\n')
                 code = '![{}]({})'.format(img_file, img_file)

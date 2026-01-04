@@ -15,6 +15,12 @@ import glob
 from bs4 import BeautifulSoup, NavigableString
 from utils import Parser
 import re
+import subprocess
+
+
+HEADERS = {
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+}
 
 
 parser = argparse.ArgumentParser('CSDN Blog Exporter: To Markdown or To PDF')
@@ -47,7 +53,13 @@ parser.add_argument('--combine_together', action='store_true',
 args = parser.parse_args()
 
 def html2md(url, md_file, with_title=False, is_win=False):
-    response = httpx.get(url)
+    try:
+        response = httpx.get(url, headers=HEADERS, timeout=20.0, follow_redirects=True)
+        response.raise_for_status()
+    except Exception as e:
+        print(f"Error fetching {url}: {e}")
+        return
+
     soup = BeautifulSoup(response.content, 'html.parser', from_encoding="utf-8")
     html = ""
     for child in soup.find_all('svg'):
@@ -72,19 +84,22 @@ def generate_pdf(input_md_file, pdf_dir, is_win=False):
     cmd = ["pandoc",
         "--toc",
         "--pdf-engine=xelatex",
-        "-V mainfont='Source Code Pro'",
-        "-V monofont='Source Code Pro'",
-        "-V documentclass='{}'".format(documentclass),
-        "-V geometry:'top=2cm, bottom=2cm, left=1.6cm, right=1.6cm'",
-        "-V pagestyle=plain",
-        "-V fontsize=11pt",
-        "-V colorlinks=blue",
-        "-s {}".format(input_md_file),
-        "-o {}".format(pdf_file),
+        "-V", "mainfont=Source Code Pro",
+        "-V", "monofont=Source Code Pro",
+        "-V", "documentclass={}".format(documentclass),
+        "-V", "geometry:top=2cm, bottom=2cm, left=1.6cm, right=1.6cm",
+        "-V", "pagestyle=plain",
+        "-V", "fontsize=11pt",
+        "-V", "colorlinks=blue",
+        "-s", "{}".format(input_md_file),
+        "-o", "{}".format(pdf_file),
     ]
-    cmd = ' '.join(cmd)
+    # cmd = ' '.join(cmd)
     print('Generate PDF File: {}'.format(pdf_file))
-    os.system(cmd)
+    try:
+        subprocess.run(cmd, check=True)
+    except subprocess.CalledProcessError as e:
+        print(f"Error generating PDF: {e}")
 
 def get_category_article_info(soup):
     url = soup.find_all('a')[0].attrs['href']
@@ -108,9 +123,19 @@ def download_csdn_category_url(category_url, md_dir, start_page=1, page_num=100,
         suffix = '.html' if page == 1 else '_{}.html'.format(page)
         category_url_new = category_url.rstrip('.html') + suffix
         print('Getting Response From {}'.format(category_url_new))
-        response = httpx.get(category_url_new)
+        try:
+            response = httpx.get(category_url_new, headers=HEADERS, timeout=20.0, follow_redirects=True)
+            response.raise_for_status()
+        except Exception as e:
+            print(f"Error fetching category {category_url_new}: {e}")
+            break
+
         soup = BeautifulSoup(response.content, 'html.parser', from_encoding="utf-8")
-        article_list = soup.find_all('ul', {'class': 'column_article_list'})[0]
+        article_list_tags = soup.find_all('ul', {'class': 'column_article_list'})
+        if not article_list_tags:
+            print("No article list found")
+            break
+        article_list = article_list_tags[0]
         p = article_list.find_all('p')
         if p and p[0].string == '空空如也':
             print('No Content in {}, I Will Skip It!'.format(category_url_new))
@@ -135,9 +160,20 @@ def download_csdn_category_url(category_url, md_dir, start_page=1, page_num=100,
 def download_csdn_single_page(details_url, md_dir, with_title=True, pdf_dir='pdf', to_pdf=False, is_win=False):
     if not exists(md_dir):
         os.makedirs(md_dir)
-    response = httpx.get(details_url)
+
+    try:
+        response = httpx.get(details_url, headers=HEADERS, timeout=20.0, follow_redirects=True)
+        response.raise_for_status()
+    except Exception as e:
+        print(f"Error fetching article {details_url}: {e}")
+        return
+
     soup = BeautifulSoup(response.content, 'html.parser', from_encoding="utf-8")
-    title = soup.find_all('h1', {'class': 'title-article'})[0].string  ## 使用 html 的 title 作为 md 文件名
+    title_tags = soup.find_all('h1', {'class': 'title-article'})
+    if not title_tags:
+        print("Could not find article title. The page structure might have changed.")
+        return
+    title = title_tags[0].string  ## 使用 html 的 title 作为 md 文件名
     title = '_'.join(title.replace('*', '').replace('/','-').replace('\\','-').replace('//','-').strip().split())
     md_file = join(md_dir, title + '.md')
     print('Export Markdown File To {}'.format(md_file))
