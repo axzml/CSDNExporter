@@ -54,7 +54,7 @@ args = parser.parse_args()
 
 def html2md(url, md_file, with_title=False, is_win=False):
     try:
-        response = httpx.get(url, headers=HEADERS, timeout=20.0, follow_redirects=True)
+        response = httpx.get(url, headers=HEADERS, timeout=20.0, follow_redirects=True, verify=False)
         response.raise_for_status()
     except Exception as e:
         print(f"Error fetching {url}: {e}")
@@ -124,7 +124,7 @@ def download_csdn_category_url(category_url, md_dir, start_page=1, page_num=100,
         category_url_new = category_url.rstrip('.html') + suffix
         print('Getting Response From {}'.format(category_url_new))
         try:
-            response = httpx.get(category_url_new, headers=HEADERS, timeout=20.0, follow_redirects=True)
+            response = httpx.get(category_url_new, headers=HEADERS, timeout=20.0, follow_redirects=True, verify=False)
             response.raise_for_status()
         except Exception as e:
             print(f"Error fetching category {category_url_new}: {e}")
@@ -162,7 +162,7 @@ def download_csdn_single_page(details_url, md_dir, with_title=True, pdf_dir='pdf
         os.makedirs(md_dir)
 
     try:
-        response = httpx.get(details_url, headers=HEADERS, timeout=20.0, follow_redirects=True)
+        response = httpx.get(details_url, headers=HEADERS, timeout=20.0, follow_redirects=True, verify=False)
         response.raise_for_status()
     except Exception as e:
         print(f"Error fetching article {details_url}: {e}")
