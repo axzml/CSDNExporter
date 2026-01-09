@@ -112,9 +112,12 @@ class Parser(object):
                 img_file = join(self.fig_dir, img_filename)
                 if not exists(img_file):
                     try:
-                        headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36'}
-                        with httpx.Client(verify=False) as client:
-                            resp = client.get(src, headers=headers, timeout=20.0)
+                        headers = {
+                            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+                            'Referer': 'https://blog.csdn.net/'
+                        }
+                        with httpx.Client(http2=False, verify=False, timeout=30.0) as client:
+                            resp = client.get(src, headers=headers)
                             if resp.status_code == 200:
                                 with open(img_file, 'wb') as f:
                                     f.write(resp.content)

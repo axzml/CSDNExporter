@@ -19,7 +19,12 @@ import subprocess
 
 
 HEADERS = {
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
+    'Accept-Language': 'en-US,en;q=0.9',
+    'Referer': 'https://blog.csdn.net/',
+    'Connection': 'keep-alive',
+    'Upgrade-Insecure-Requests': '1',
 }
 
 
@@ -55,7 +60,13 @@ args = parser.parse_args()
 def html2md(url, md_file, with_title=False, is_win=False):
     try:
         # Force HTTP/1.1 to avoid [Errno 0] Error in some environments
-        with httpx.Client(http2=False, verify=False, timeout=20.0, follow_redirects=True) as client:
+        with httpx.Client(http2=False, verify=False, timeout=30.0, follow_redirects=True) as client:
+            # Warm up session
+            try:
+                client.get("https://blog.csdn.net/", headers=HEADERS)
+            except Exception:
+                pass # Ignore warmup failure
+
             response = client.get(url, headers=HEADERS)
             response.raise_for_status()
     except Exception as e:
@@ -126,7 +137,13 @@ def download_csdn_category_url(category_url, md_dir, start_page=1, page_num=100,
         category_url_new = category_url.rstrip('.html') + suffix
         print('Getting Response From {}'.format(category_url_new))
         try:
-            with httpx.Client(http2=False, verify=False, timeout=20.0, follow_redirects=True) as client:
+            with httpx.Client(http2=False, verify=False, timeout=30.0, follow_redirects=True) as client:
+                # Warm up session
+                try:
+                    client.get("https://blog.csdn.net/", headers=HEADERS)
+                except Exception:
+                    pass
+
                 response = client.get(category_url_new, headers=HEADERS)
                 response.raise_for_status()
         except Exception as e:
@@ -165,7 +182,13 @@ def download_csdn_single_page(details_url, md_dir, with_title=True, pdf_dir='pdf
         os.makedirs(md_dir)
 
     try:
-        with httpx.Client(http2=False, verify=False, timeout=20.0, follow_redirects=True) as client:
+        with httpx.Client(http2=False, verify=False, timeout=30.0, follow_redirects=True) as client:
+            # Warm up session
+            try:
+                client.get("https://blog.csdn.net/", headers=HEADERS)
+            except Exception:
+                pass
+
             response = client.get(details_url, headers=HEADERS)
             response.raise_for_status()
     except Exception as e:
