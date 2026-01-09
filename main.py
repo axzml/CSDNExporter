@@ -54,8 +54,10 @@ args = parser.parse_args()
 
 def html2md(url, md_file, with_title=False, is_win=False):
     try:
-        response = httpx.get(url, headers=HEADERS, timeout=20.0, follow_redirects=True, verify=False)
-        response.raise_for_status()
+        # Force HTTP/1.1 to avoid [Errno 0] Error in some environments
+        with httpx.Client(http2=False, verify=False, timeout=20.0, follow_redirects=True) as client:
+            response = client.get(url, headers=HEADERS)
+            response.raise_for_status()
     except Exception as e:
         print(f"Error fetching {url}: {e}")
         return
@@ -124,8 +126,9 @@ def download_csdn_category_url(category_url, md_dir, start_page=1, page_num=100,
         category_url_new = category_url.rstrip('.html') + suffix
         print('Getting Response From {}'.format(category_url_new))
         try:
-            response = httpx.get(category_url_new, headers=HEADERS, timeout=20.0, follow_redirects=True, verify=False)
-            response.raise_for_status()
+            with httpx.Client(http2=False, verify=False, timeout=20.0, follow_redirects=True) as client:
+                response = client.get(category_url_new, headers=HEADERS)
+                response.raise_for_status()
         except Exception as e:
             print(f"Error fetching category {category_url_new}: {e}")
             break
@@ -162,8 +165,9 @@ def download_csdn_single_page(details_url, md_dir, with_title=True, pdf_dir='pdf
         os.makedirs(md_dir)
 
     try:
-        response = httpx.get(details_url, headers=HEADERS, timeout=20.0, follow_redirects=True, verify=False)
-        response.raise_for_status()
+        with httpx.Client(http2=False, verify=False, timeout=20.0, follow_redirects=True) as client:
+            response = client.get(details_url, headers=HEADERS)
+            response.raise_for_status()
     except Exception as e:
         print(f"Error fetching article {details_url}: {e}")
         return
